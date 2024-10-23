@@ -68,16 +68,20 @@ def encode(image_path, secret_message, output_image_path):
 
     # Save the encoded image
     encoded_image.save(output_image_path)
-    print("Message encoded successfully!")
+    print("\n\t\t************Message encoded successfully!************")
 
 
 
-
-
-
-
-
-
+def get_file_path():
+    while True:
+        file_path = input("Please enter the path to the file: ")
+        
+        # Check if the file exists
+        if os.path.isfile(file_path):
+            print("\n\t\t\tFile found!")
+            return file_path
+        else:
+            print("\n\t\t\tFile not found. Please try again.")
 
 
 
@@ -85,13 +89,14 @@ def encode(image_path, secret_message, output_image_path):
 if __name__ == "__main__":
 
 #encryption state    
-    plaintext = input("Enter your secret message : ")
+    plaintext = input("\n\nEnter your secret message : ")
     password = "mysecretpassword"
-    #plaintext = "Hello, AES encryption!"
     
     encrypted = encrypt(plaintext, password)
-    print(f"\n Encrypted : {encrypted}")
+    print(f"\n\nEncrypted : {encrypted}\n")
 
-    print("\n current file selected is \n \tC:/Users/naga/Pictures/Screenshot 2024-08-13 220101.png")
+    file_path = get_file_path()
+    print(f"\n\nYou entered: {file_path}")
 
-    encode("C:/Users/naga/Pictures/Screenshot 2024-08-13 220101.png", encrypted, "output_image.png")
+    print("\n\ncurrent file selected is :\n\t {}".format(file_path))
+    encode(file_path, encrypted, "output_image.png")
