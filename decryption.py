@@ -54,26 +54,40 @@ def derive_key(password, salt):
     )
     return kdf.derive(password.encode())
 
+def get_file_path():
+    while True:
+        file_path = input("\n\nPlease enter the path to the file: ")
+        
+        # Check if the file exists
+        if os.path.isfile(file_path):
+            print("\n\n\t\t\tFile found!")
+            return file_path
+        else:
+            print("\n\nFile not found. Please try again.")
+
+
 
 
 if __name__ == "__main__":
 
-    password = "mysecretpassword"
 
-    decoded_message = decode("output_image.png")
-    print("decoded_message:",decoded_message)
+    password = str(input("\n\nEnter password:"))
+
+    file_path=get_file_path()
+    decoded_message = decode(file_path)
+    print("\n\nDecoded lsb message:",decoded_message)
 
     
     lsb_extraction=''
 
-    print("\n \t\t\t\t DECRYTION \n Decoded message:",end=' ')
+    print("\n \t ***********DECRYTION*********** \n\nDecoded message:",end=' ')
     for i in decoded_message:
         
         print(i,end='')
         if(i == "|"):
             break
         lsb_extraction+=i
-    print("\n",lsb_extraction)
+    print("\n\nEncrypted message extraction : {}\n\n ".format(lsb_extraction))
 
-    decrypted = decrypt(lsb_extraction, password)
-    print(f"Decrypted: {decrypted}")
+    decrypted = decrypt(lsb_extraction,password)
+    print(f"\n\n\tDecrypted: {decrypted}\n\n")
