@@ -30,19 +30,47 @@ def decode(image_path):
     return message.rstrip('||')  # Remove the delimiter
 
 def decrypt(ciphertext, password):
-    decoded = base64.b64decode(ciphertext)
-    salt = decoded[:16]
-    iv = decoded[16:32]
-    ciphertext = decoded[32:]
-    #print("decoded  =   {},salt  =  {},iv   =   {},ciphertext   =   {}".format(decoded,salt,iv,ciphertext))
+    try:
+        # Add padding if needed
+        padding = len(ciphertext) % 4
+        if padding:
+            ciphertext += '=' * (4 - padding)
 
-    key = derive_key(password, salt)
-    
-    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
-    decryptor = cipher.decryptor()
-    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+        decoded = base64.b64decode(ciphertext)
+        
+        # Debug information
+        print(f"Length of decoded data: {len(decoded)} bytes")
+        print(f"Decoded data (hex): {decoded.hex()}")
+        
+        # if len(decoded) < 48:  # 16 (salt) + 16 (iv) + 16 (minimum data)
+        #     raise ValueError(f"Decoded data too short: {len(decoded)} bytes")
 
-    return plaintext.decode()
+        salt = decoded[:16]
+        iv = decoded[16:32]
+        ciphertext = decoded[32:]
+        
+        print(f"Salt (hex): {salt.hex()}")
+        print(f"IV (hex): {iv.hex()}")
+        print(f"Encrypted data (hex): {ciphertext.hex()}")
+
+        key = derive_key(password, salt)
+        cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+
+        # Try different encodings if UTF-8 fails
+        try:
+            return str(plaintext.decode('utf-8'))
+        except UnicodeDecodeError:
+            try:
+                return plaintext.decode('latin-1')
+            except UnicodeDecodeError:
+                # Return hex representation if text decoding fails
+                return f"Unable to decode as text. Hex output: {plaintext.hex()}"
+
+    except Exception as e:
+        print(f"Decrypt error: {str(e)}")
+        raise
 
 def derive_key(password, salt):
     kdf = PBKDF2HMAC(
